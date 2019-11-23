@@ -5,12 +5,6 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.compile.AbstractCompile
-import asmble.cli.main as asmbleMain
-
-fun main() {
-    asmbleMain(arrayOf("compile", "examples/hello-world/src/main/wasm/add.wasm",
-            "-format", "wasm", "-log", "info", "com.athaydes.Example"))
-}
 
 open class WasmExtension {
     var sourceDir: Any = "src/main/wasm"
