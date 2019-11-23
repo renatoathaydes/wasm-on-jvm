@@ -10,6 +10,8 @@ import java.io.File
 
 open class CompileWasmTask : DefaultTask() {
 
+    private data class ClassName(val qualified: String, val simple: String, val packages: List<String>)
+
     val ext: WasmExtension by lazy { project.extensions.getByName("wasm") as WasmExtension }
 
     @get:InputDirectory
@@ -24,36 +26,58 @@ open class CompileWasmTask : DefaultTask() {
         val sourceDir = inputDir
         if (sourceDir.isDirectory) {
             sourceDir.walk(FileWalkDirection.TOP_DOWN).filter { it.isFile }.forEach { file ->
-                var fullClassName = ext.classNameByFile[file.path] ?: if (ext.packageName.isBlank())
-                    file.nameWithoutExtension
-                else "${ext.packageName}.${file.nameWithoutExtension}"
+                val className = resolvePkgAndClassName(file)
+                val classFile = classFileFor(className)
 
-                val (packages, className) = {
-                    val parts = fullClassName.split(".").filter { it.isNotBlank() }
-                    parts.dropLast(1) to parts.last()
-                }()
+                classFile.parentFile?.mkdirs()
 
-                val classFile = "${outputDir}/" +
-                        (if (packages.isNotEmpty()) packages.joinToString("/", postfix = "/") else "") +
-                        "${className}.class"
-
-                File(classFile).parentFile.mkdirs()
-
-                logger.debug("Compiling wasm file $file to class $fullClassName")
+                logger.warn("Compiling wasm file $file to class ${className.qualified}")
 
                 Compile().let { cmd ->
                     cmd.logger = Logger.Print(Logger.Level.WARN)
                     cmd.run(
-                        Compile.Args(
-                            file.absolutePath, "<use file extension>",
-                            fullClassName, classFile, null, false
-                        )
+                            Compile.Args(
+                                    file.absolutePath, "<use file extension>",
+                                    className.qualified, classFile.path, null, false
+                            )
                     )
                 }
             }
         } else {
-            logger.warn("No WASM sources found, sourceDir is no a directory: $sourceDir")
+            logger.warn("No WASM sources found, sourceDir is not a directory: $sourceDir")
         }
+    }
+
+    private fun resolvePkgAndClassName(file: File): ClassName {
+        val sourceDir = inputDir
+
+        val relativeClassName = file.relativeTo(sourceDir).path
+
+        val customName = ext.classNameByFile[relativeClassName]
+
+        val fullClassName = joinClassNameWithPkg(customName ?: file.nameWithoutExtension)
+
+        val parts = fullClassName.split(".").filter { it.isNotBlank() }
+        return ClassName(
+                qualified = fullClassName,
+                simple = parts.last(),
+                packages = parts.dropLast(1)
+        )
+    }
+
+    private fun joinClassNameWithPkg(name: String): String {
+        return if (ext.packageName.isBlank()) name else
+            "${ext.packageName}.${name}"
+    }
+
+    private fun classFileFor(name: ClassName): File {
+        if (name.packages.isEmpty()) {
+            return File(outputDir, "${name.simple}.class")
+        }
+
+        val dir = name.packages.joinToString(File.separator, postfix = File.separator)
+
+        return File(outputDir, "${dir}${name.simple}.class")
     }
 
 }
