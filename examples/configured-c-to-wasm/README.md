@@ -8,6 +8,13 @@ This example illustrates two things:
 
 See the [build.gradle](build.gradle) file for details.
 
+## Requirements
+
+This example requires that you have [LLVM](http://llvm.org/) installed as it will compile C code to WASM using
+the `clang` command.
+
+## Compiling
+
 The `compileC` Gradle task invokes the LLVM compiler to compile C files in
 [src/main/c](src/main/c) to WASM binaries.
 
@@ -27,6 +34,8 @@ gradle compileJava
 
 The `compileWasm` task is run automatically.
 
+## Running
+
 To run the `Main` class, which uses compiled C code, the easiest way is to create a fat jar first:
 
 ```bash
@@ -40,3 +49,15 @@ java -jar build/libs/wasm-example-1.0-SNAPSHOT.jar 2 3
 ```
 
 Which should print `5` (showing that the C code is adding `2` and `3` as expected).
+
+<hr/>
+
+Notice that because this example does not have any external dependencies, using the jar produced by the `jar`
+task would still work as well, so a fat jar is not necessary.
+
+You can even run it by simply specifying where the class files are (as in the [hello-world](../hello-world) example)
+and giving the qualified name of the main class:
+
+```bash
+java -cp build/classes/java/main:build/classes/wasm/main com.athaydes.wasm.c.Main 2 3 
+```
