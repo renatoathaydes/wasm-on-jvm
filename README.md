@@ -25,6 +25,30 @@ Use the generated classes in your Java code.
 
 Compile everything and run it!
 
+## Configuration
+
+Optionally, you can configure how the WASM Plugin behaves:
+
+```groovy
+wasm {
+    // where to find wasm files
+    // (this value is the default, so omit if you don't want to change it)
+    sourceDir = file('src/main/wasm')
+
+    // this is used as the top-level package name for this project.
+    packageName = 'org.mypkg'
+
+    // mappings between WASM file names and desired Java class names.
+    // By default, WASM files are compiled into Java classes with the same name as the files,
+    // without their extension.
+    classNameByFile = [
+            'add.wasm': 'WasmAdder'
+    ]
+}
+```
+
+## Examples
+
 See the [hello-world](examples/hello-world) example to get started real quick!
 
 And the [C-to-WASM-to-JVM](examples/configured-c-to-wasm) example for more advanced usage, such as
