@@ -1,0 +1,3 @@
+rootProject.name = 'wasm-on-jvm'
+
+include 'wasm-gradle-plugin'

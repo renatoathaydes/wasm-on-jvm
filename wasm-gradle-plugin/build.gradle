@@ -1,0 +1,42 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.60"
+    }
+}
+
+apply plugin: 'org.jetbrains.kotlin.jvm'
+
+group 'com.athaydes.wasm'
+version '1.0-SNAPSHOT'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+//    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+//    implementation "org.jetbrains.kotlin:kotlin-reflect-jdk8"
+    implementation 'com.github.cretz.asmble:asmble-compiler:0.3.0'
+    api gradleApi()
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+//jar {
+//    manifest {
+//        attributes "Main-Class": "com.baeldung.fatjar.Application"
+//    }
+//
+//    from {
+//        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+//    }
+//}

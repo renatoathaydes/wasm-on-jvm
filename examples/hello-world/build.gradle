@@ -1,0 +1,21 @@
+buildscript {
+    repositories {
+        jcenter()
+        flatDir { dir '../../wasm-gradle-plugin/build/libs' }
+    }
+
+    dependencies {
+        classpath name: "wasm-gradle-plugin-1.0-SNAPSHOT"
+        classpath 'com.github.cretz.asmble:asmble-compiler:0.3.0'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'com.athaydes.wasm'
+
+group 'com.athaydes.wasm'
+version '1.0-SNAPSHOT'
+
+repositories {
+    jcenter()
+}
