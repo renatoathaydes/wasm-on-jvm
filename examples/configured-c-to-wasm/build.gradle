@@ -1,0 +1,68 @@
+buildscript {
+    repositories {
+        jcenter()
+        flatDir { dir '../../wasm-gradle-plugin/build/libs' }
+    }
+
+    dependencies {
+        classpath name: "wasm-gradle-plugin-1.0-SNAPSHOT"
+        classpath 'com.github.cretz.asmble:asmble-compiler:0.3.0'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'com.athaydes.wasm'
+
+group 'com.athaydes.wasm'
+version '1.0-SNAPSHOT'
+
+repositories {
+    jcenter()
+}
+
+final wasmDir = file( "$buildDir/compiled-wasm" )
+
+wasm {
+    // where to find wasm files
+    sourceDir = wasmDir
+
+    // this is used as the top-level package name for this project.
+    packageName = 'com.athaydes.wasm.c'
+
+    // By default, class names are the same as the file names, so for `add.wasm` we would end up with
+    // a class named `add`, which is not very good Java-style.
+    // If the file name had a dash, as in `add-int`, then we wouldn't even be able to use it from Java source code!
+    // But renaming all your wasm files would be a bummer, so this plugin allows you to provide a mapping between
+    // file names and class names, as shown below.
+    // The resulting class is called (packageName + '.' + name), so in this case, the class will be called
+    // com.athaydes.wasm.c.Adder
+    classNameByFile = [
+            'add.wasm': 'Adder'
+    ]
+}
+
+task compileC( description: 'Compiles C sources into WASM binaries' ) {
+    inputs.dir( 'src/main/c' )
+    outputs.dir( wasmDir )
+    compileWasm.dependsOn( 'compileC' )
+
+    doFirst { wasmDir.mkdirs() }
+
+    doLast {
+        exec {
+            // See https://dassur.ma/things/c-to-webassembly/ for details about this
+            commandLine 'clang', '--target=wasm32', '-nostdlib',
+                    '-Wl,--no-entry', '-Wl,--export-all', '-o', "$wasmDir/add.wasm",
+                    'src/main/c/add.c'
+        }
+    }
+}
+
+task fatJar( type: Jar, description: 'Creates a fat, runnable jar for this app' ) {
+    manifest {
+        attributes 'Main-Class': 'com.athaydes.wasm.c.Main'
+    }
+    archiveBaseName = 'wasm-example'
+    from { configurations.runtime.collect { it.isDirectory() ? it : zipTree( it ) } }
+    with jar
+}
