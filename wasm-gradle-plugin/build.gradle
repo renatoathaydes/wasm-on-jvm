@@ -17,7 +17,7 @@ apply plugin: "com.gradle.plugin-publish"
 
 
 group 'com.athaydes.wasm'
-version '1.0-SNAPSHOT'
+version '1.0'
 description 'Gradle Plugin to compile WASM to JVM easily'
 
 repositories {
@@ -38,12 +38,13 @@ compileTestKotlin {
 
 pluginBundle {
     website = 'https://github.com/renatoathaydes/wasm-on-jvm'
-    vcsUrl = 'git@github.com:renatoathaydes/wasm-on-jvm.git'
+    vcsUrl = 'https://github.com/renatoathaydes/wasm-on-jvm'
     description = project.description
     tags = ['java', 'wasm', 'web-assembly', 'languages']
 
     plugins {
         wasmPlugin {
+            id = 'com.athaydes.wasm'
             displayName = 'Gradle WASM-on-JVM Plugin'
         }
     }
