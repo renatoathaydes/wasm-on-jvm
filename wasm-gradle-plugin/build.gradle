@@ -17,7 +17,7 @@ apply plugin: "com.gradle.plugin-publish"
 
 
 group 'com.athaydes.wasm'
-version '1.0'
+version '1.1'
 description 'Gradle Plugin to compile WASM to JVM easily'
 
 repositories {
