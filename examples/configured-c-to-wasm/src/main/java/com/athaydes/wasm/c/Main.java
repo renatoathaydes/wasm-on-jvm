@@ -8,6 +8,6 @@ public class Main {
         int a = Integer.parseInt( args[ 0 ] );
         int b = Integer.parseInt( args[ 1 ] );
 
-        System.out.println( new Adder( 0 ).add( a, b ) );
+        System.out.println( new Adder( 131072 ).add( a, b ) );
     }
 }
